@@ -19,7 +19,7 @@ todos:
     status: completed
   - id: p0-06-android-sdk
     content: "P0-06: Set Android minSdk 24; document ML Kit bundled dep (android/)"
-    status: pending
+    status: completed
   - id: p1-01-capture
     content: "P1-01: Prescription camera/gallery + app-private image store"
     status: pending

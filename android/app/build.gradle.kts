@@ -6,7 +6,8 @@ plugins {
 
 android {
     namespace = "com.medicinereminder.medicine_remainder_app"
-    compileSdk = flutter.compileSdkVersion
+    // Latest stable at P0-06; align with README and Play policy over time.
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -17,10 +18,9 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.medicinereminder.medicine_remainder_app"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        // minSdk 24: ML Kit bundled OCR + notification headroom (see android/README.md).
+        minSdk = 24
+        targetSdk = 35
         // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
         // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)
         // You can force using the value of versionCode by specifying the `-P force-version-code-ignoring-abi=true`
@@ -47,3 +47,8 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+// Phase 1 (P1-03): uncomment when adding google_mlkit_text_recognition.
+// dependencies {
+//     implementation("com.google.mlkit:text-recognition:16.0.1")
+// }

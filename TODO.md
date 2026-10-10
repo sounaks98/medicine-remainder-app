@@ -13,7 +13,7 @@ Living checklist synced with [§12](.cursor/plans/implementaion.plan.md#12-prior
 | P0-03 | P0 | Add Riverpod, go_router, drift deps | `pubspec.yaml` | P0-01 | pub get ok | `flutter pub get` | done |
 | P0-04 | P0 | `README.md` + `docs/architecture.md` | `docs/` | P0-02 | Onboarding steps | review | done |
 | P0-05 | P0 | Sync `TODO.md` from §12 | `TODO.md` | P0-04 | All IDs present | review | done |
-| P0-06 | P1 | Android minSdk 24, ML Kit bundled note | `android/` | P0-01 | manifest valid | build | todo |
+| P0-06 | P1 | Android minSdk 24, ML Kit bundled note | `android/` | P0-01 | manifest valid | build | done |
 
 ## Phase 1
 
