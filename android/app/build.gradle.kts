@@ -48,7 +48,6 @@ flutter {
     source = "../.."
 }
 
-// Phase 1 (P1-03): uncomment when adding google_mlkit_text_recognition.
-// dependencies {
-//     implementation("com.google.mlkit:text-recognition:16.0.1")
-// }
+dependencies {
+    implementation("com.google.mlkit:text-recognition:16.0.1")
+}

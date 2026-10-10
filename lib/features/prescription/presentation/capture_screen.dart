@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:medicine_remainder_app/app/di/providers.dart';
+import 'package:medicine_remainder_app/app/router.dart';
+import 'package:medicine_remainder_app/features/prescription/presentation/document_verify_screen.dart';
 
 class CaptureScreen extends ConsumerStatefulWidget {
   const CaptureScreen({super.key});
@@ -35,8 +38,9 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
         return;
       }
       setState(() => _savedImagePath = path);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Prescription image saved on device.')),
+      await context.push(
+        AppRoutes.documentVerify,
+        extra: DocumentVerifyRouteArgs(imagePath: path),
       );
     } catch (error) {
       if (!mounted) {

@@ -28,16 +28,16 @@ todos:
     status: completed
   - id: p1-03-ocr
     content: "P1-03: ML Kit Latin OCR service — mlkit_ocr_service.dart"
-    status: pending
+    status: completed
   - id: p1-04-ocr-ui
     content: "P1-04: OCR review screen (image + text, no auto-save)"
-    status: pending
+    status: completed
   - id: p1-05-offline-doc
     content: "P1-05: Document offline OCR smoke test in docs/offline-capabilities.md"
-    status: pending
+    status: completed
   - id: p1-06-rules-stub
     content: "P1-06: OCR rules extraction stub — ocr_rules_extraction_service.dart"
-    status: pending
+    status: completed
   - id: p2-01-model-manifest
     content: "P2-01: Pin SmolVLM revision in assets/models/model_manifest.json"
     status: pending

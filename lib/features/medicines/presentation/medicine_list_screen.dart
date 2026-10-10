@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-import 'package:medicine_remainder_app/features/prescription/presentation/capture_screen.dart';
+import 'package:medicine_remainder_app/app/router.dart';
 
 class MedicineListScreen extends StatelessWidget {
   const MedicineListScreen({super.key});
@@ -13,13 +14,7 @@ class MedicineListScreen extends StatelessWidget {
         child: Text('No confirmed medicines yet.'),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => const CaptureScreen(),
-            ),
-          );
-        },
+        onPressed: () => context.push(AppRoutes.capture),
         tooltip: 'Add prescription',
         child: const Icon(Icons.add_a_photo),
       ),
