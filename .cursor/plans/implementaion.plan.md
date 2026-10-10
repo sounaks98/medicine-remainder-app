@@ -7,7 +7,7 @@ todos:
     status: completed
   - id: p0-02-folder-layout
     content: "P0-02: Create lib/ feature folder layout per §6 (lib/**)"
-    status: pending
+    status: completed
   - id: p0-03-deps
     content: "P0-03: Add Riverpod, go_router, drift to pubspec.yaml"
     status: pending
