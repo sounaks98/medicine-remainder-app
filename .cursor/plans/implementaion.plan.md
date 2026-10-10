@@ -10,13 +10,13 @@ todos:
     status: completed
   - id: p0-03-deps
     content: "P0-03: Add Riverpod, go_router, drift to pubspec.yaml"
-    status: pending
+    status: completed
   - id: p0-04-docs-arch
     content: "P0-04: Write README.md and docs/architecture.md"
-    status: pending
+    status: completed
   - id: p0-05-todo-sync
     content: "P0-05: Create root TODO.md synced with §12 task IDs"
-    status: pending
+    status: completed
   - id: p0-06-android-sdk
     content: "P0-06: Set Android minSdk 24; document ML Kit bundled dep (android/)"
     status: pending
@@ -326,7 +326,7 @@ All application files are new. Planning artifacts: `README.md`, `docs/*.md`, `TO
 | A3 | User must complete **one-time model download** while online; thereafter core flows work offline. |
 | A4 | Extraction output is **assistive**, not clinical advice; disclaimers in UI. |
 | A5 | Single active extraction at a time to cap memory on 4 GB devices. |
-| A6 | **No user accounts**; optional export later (out of scope v1). |
+| A6 | **Local multi-user profiles** (UUID per person on device, no cloud login); single in-app Drift DB with `userId` on all rows; optional export later (out of scope v1). |
 
 ### 3.3 Unresolved questions (must be closed in Phase 2 spike)
 
@@ -387,13 +387,15 @@ flowchart TB
 
 ### 4.2 Extraction pipeline (logical)
 
-1. **Capture** → normalize image (EXIF rotation, max dimension, contrast optional) → save temp copy in app-private dir.
-2. **OCR** (always) → `OcrResult` (blocks, lines, bounding boxes, full text).
-3. **Optional VLM** (if model installed & Phase 2 go) → image + structured prompt → raw JSON string.
-4. **Parse** → map OCR/VLM output to `MedicationExtractionDraft` with per-field `FieldConfidence` (`known` | `uncertain` | `missing`).
-5. **Validate** → JSON schema / business rules (no schedule without confirmed frequency).
-6. **Review UI** → user edits → **Confirm** → `MedicationRecord` (immutable source snapshot + provenance).
-7. **Schedule** → only after confirm → persist reminders.
+0. **Active profile** → all reads/writes scoped to selected `userId` (local profile, not cloud account).
+1. **Capture or manual** → normalize image to app-private temp **or** create empty manual prescription (`source = manual`, optional image).
+2. **OCR** (image path only) → `OcrResult` (blocks, lines, bounding boxes, full text).
+3. **Prescription verification** (image path) → `PrescriptionImageVerifier`: if **unlikely** not a prescription, block and prompt for a clear Rx photo; **uncertain** may proceed with warning; manual path skips this step.
+4. **Optional VLM** (if model installed & Phase 2 go) → image + structured prompt → raw JSON string.
+5. **Parse** → map OCR/VLM/manual input to `MedicationExtractionDraft` with per-field `FieldConfidence` (`known` | `uncertain` | `missing`), including EHR fields when available.
+6. **Validate** → JSON schema / business rules (no schedule without confirmed frequency).
+7. **Review UI** → user edits → **Confirm** → `humanReviewedAt` + `reviewStatus = confirmed` → `MedicationRecord` (immutable snapshot + provenance).
+8. **Schedule** → only after confirm → persist reminders for that `userId`.
 
 ### 4.3 Inference abstraction
 
@@ -489,7 +491,9 @@ Legend: **N** = new, **M** = modify, **R** = retain
 | `lib/app/app.dart` | N | MaterialApp, theme |
 | `lib/app/router.dart` | N | go_router routes |
 | `lib/app/di/providers.dart` | N | Riverpod providers for services/repos |
-| `lib/features/prescription/presentation/capture_screen.dart` | N | Camera/gallery UX |
+| `lib/features/users/` | N | Local profiles, active `userId`, profile switcher |
+| `lib/features/prescription/presentation/capture_screen.dart` | N | Camera/gallery UX + manual entry entry point |
+| `lib/services/ocr/prescription_image_verifier.dart` | N | Non-Rx image detection after OCR |
 | `lib/features/prescription/presentation/ocr_review_screen.dart` | N | Image + OCR text |
 | `lib/features/prescription/presentation/extraction_review_screen.dart` | N | Field-level edit + warnings |
 | `lib/features/prescription/domain/prescription_import.dart` | N | Use cases: import, run OCR, request extraction |
@@ -562,10 +566,22 @@ Legend: **N** = new, **M** = modify, **R** = retain
 
 **Schema version:** `medication_schema_v1` (bump integer on breaking changes).
 
+**Storage:** One **in-app** Drift/SQLite database; **multi-user** via `userId` FK on all tenant data (not separate DB files per profile). Optional prescription images under `users/{userId}/prescriptions/{prescriptionId}/`.
+
+### 7.0 `UserProfile` and tenancy
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `userId` | UUID | Primary key |
+| `displayName` | string | Shown in profile switcher |
+| `createdAt` / `updatedAt` | ISO8601 | Profile lifecycle |
+
 ### 7.1 Core enums
 
 - `FieldConfidence`: `known` | `uncertain` | `missing`
-- `ReviewStatus`: `draft` | `confirmed` | `rejected`
+- `ReviewStatus`: `draft` | `confirmed` | `rejected` (human review required for `confirmed`)
+- `PrescriptionSource`: `camera` | `gallery` | `manual`
+- `PrescriptionLikelihood`: `likely` | `uncertain` | `unlikely` (image verification)
 - `Provenance`: `ocr` | `vlm` | `user` | `rules`
 - `AdherenceStatus`: `taken` | `skipped` | `unknown`
 
@@ -579,19 +595,36 @@ Legend: **N** = new, **M** = modify, **R** = retain
 | `provenance` | `Provenance` | |
 | `warnings` | `List<String>` | e.g. ambiguous strength |
 
-### 7.3 `MedicationExtractionDraft` (pre-confirm)
+### 7.3 `Prescription` (container; pre- and post-confirm)
+
+| Field | Type |
+|-------|------|
+| `prescriptionId` | UUID |
+| `userId` | UUID |
+| `capturedAt` | ISO8601 | Unique create/import timestamp per prescription |
+| `validFrom` / `validTo` | ISO8601? | Care episode / Rx validity window |
+| `source` | `PrescriptionSource` |
+| `imagePath` | string? | Optional; null for manual-only |
+| `reviewStatus` | `ReviewStatus` |
+| `humanReviewedAt` | ISO8601? | Set on confirm |
+| `doctorName`, `diagnosis`, `testsSuggested`, `facilityName`, `notes` | optional strings | EHR-style metadata |
+| `prescriptionLikelihood` | `PrescriptionLikelihood?` | From verifier on image imports |
+| `createdAt` / `updatedAt` | ISO8601 | Row audit |
+
+### 7.3b `MedicationExtractionDraft` (pre-confirm working copy)
 
 | Field | Type |
 |-------|------|
 | `schemaVersion` | int |
 | `prescriptionId` | UUID |
+| `userId` | UUID |
 | `medicines` | `List<MedicineDraft>` |
-| `rawOcrText` | string |
+| `rawOcrText` | string? |
 | `rawModelOutput` | string? |
-| `extractionMethod` | `ocr_only` \| `ocr_rules` \| `smolvlm_onnx` |
+| `extractionMethod` | `ocr_only` \| `ocr_rules` \| `smolvlm_onnx` \| `manual` |
 | `createdAt` | ISO8601 |
 
-**`MedicineDraft` fields (each wrapped in `MedicationField`):** name, strength, strengthUnit, doseInstructions, route, frequency, duration, timing, originalSourceText.
+**`MedicineDraft` fields (each wrapped in `MedicationField`):** name, strength, strengthUnit, doseInstructions, route, frequency, duration, **timing**, **startAt**, **endAt**, originalSourceText.
 
 ### 7.4 `MedicationRecord` (post-confirm)
 
@@ -601,16 +634,18 @@ Adds `confirmedAt`, `confirmedByUser` (bool), frozen snapshot of fields, `schedu
 
 | Entity | Purpose |
 |--------|---------|
-| `PrescriptionMetadata` | image path hash, capture time, mime, dimensions |
+| `PrescriptionMetadata` | image path hash, mime, dimensions (when image present) |
 | `OcrResult` | versioned blob + blocks JSON |
-| `ScheduleRule` | RRULE-like or explicit times list + timezone |
-| `ReminderEvent` | fire time, medicineId, status pending/fired/cancelled |
+| `PrescriptionImageVerifier` | service: OCR text + heuristics → `PrescriptionLikelihood` |
+| `ScheduleRule` | RRULE-like or explicit times list + timezone; bounded by medicine `startAt`–`endAt` |
+| `ReminderEvent` | fire time, medicineId, `userId`, status pending/fired/cancelled |
 | `AdherenceEntry` | links reminder + status + timestamp |
 
 ### 7.6 Database constraints
 
-- No `ReminderEvent` with `active` unless parent `MedicationRecord.reviewStatus = confirmed`.
-- Foreign keys ON; cascade delete prescription → drafts; **retain** adherence anonymized stats optional (default: cascade).
+- All tenant tables include **`userId`**; queries default-filter by active profile.
+- No `ReminderEvent` with `active` unless parent prescription `reviewStatus = confirmed` and `humanReviewedAt` is set.
+- Foreign keys ON; cascade delete **user profile** → prescriptions → medicines → reminders; cascade delete prescription → drafts and image files.
 - Migrations: `schemaVersion` table; Drift `migrationStrategy`.
 - **Recovery tests:** downgrade blocked; corrupt DB → user-visible error + export if possible.
 
@@ -923,13 +958,14 @@ Copy into root `TODO.md` during Phase 0. **Status:** all `todo` at plan time.
 
 ### 14.2 Final acceptance criteria (product)
 
-1. User can capture/import prescription **without account** and process OCR **offline** after install.
-2. Extracted fields show **confidence**; user must **confirm** before medicines/reminders activate.
-3. Confirmed medicines and adherence survive app restart.
-4. Reminders fire on schedule and **reschedule after reboot** on test device.
-5. Prescription images stored in **app-private** storage; not logged in release.
-6. If VLM go: optional enhancement behind setting; if no-go: app still meets 1–5.
-7. `docs/*` and `TODO.md` reflect actual measured behavior (no fabricated metrics).
+1. User can select a **local profile**, capture/import a prescription or **enter one manually**, and process OCR **offline** after install (no cloud login).
+2. Non-prescription images are **rejected or flagged** before extraction review; user can retake or switch to manual entry.
+3. Extracted fields show **confidence**; user must **confirm** (`humanReviewed`) before medicines/reminders activate.
+4. Confirmed medicines and adherence survive app restart **per profile**.
+5. Reminders fire on schedule and **reschedule after reboot** on test device.
+6. Prescription images (when used) stored in **app-private** per-user paths; not logged in release.
+7. If VLM go: optional enhancement behind setting; if no-go: app still meets 1–6.
+8. `docs/*` and `TODO.md` reflect actual measured behavior (no fabricated metrics).
 
 ---
 
