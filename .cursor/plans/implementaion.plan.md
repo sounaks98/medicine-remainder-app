@@ -4,7 +4,7 @@ overview: Offline-first Flutter medicine reminder with ML Kit OCR baseline, gate
 todos:
   - id: p0-01-flutter-create
     content: "P0-01: Run flutter create; verify debug APK builds (/)"
-    status: completed
+    status: in_progress
   - id: p0-02-folder-layout
     content: "P0-02: Create lib/ feature folder layout per §6 (lib/**)"
     status: completed
@@ -22,10 +22,10 @@ todos:
     status: completed
   - id: p1-01-capture
     content: "P1-01: Prescription camera/gallery + app-private image store"
-    status: pending
+    status: completed
   - id: p1-02-preprocess
     content: "P1-02: Image preprocess (EXIF rotate, resize) — image_preprocessor.dart"
-    status: pending
+    status: completed
   - id: p1-03-ocr
     content: "P1-03: ML Kit Latin OCR service — mlkit_ocr_service.dart"
     status: pending

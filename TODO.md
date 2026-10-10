@@ -19,8 +19,8 @@ Living checklist synced with [§12](.cursor/plans/implementaion.plan.md#12-prior
 
 | ID | P | Task | Paths | Deps | Acceptance | Verify | Status |
 |----|---|------|-------|------|------------|--------|--------|
-| P1-01 | P0 | Image capture + gallery | `capture_screen.dart`, `prescription_image_store.dart` | P0-02 | Image saved private | widget test | todo |
-| P1-02 | P0 | Image preprocess (rotate, resize) | `image_preprocessor.dart` | P1-01 | EXIF fixed | unit test | todo |
+| P1-01 | P0 | Image capture + gallery | `capture_screen.dart`, `prescription_image_store.dart` | P0-02 | Image saved private | widget test | done |
+| P1-02 | P0 | Image preprocess (rotate, resize) | `image_preprocessor.dart` | P1-01 | EXIF fixed | unit test | done |
 | P1-03 | P0 | ML Kit OCR service | `mlkit_ocr_service.dart` | P0-06 | Text non-empty on sample | device test | todo |
 | P1-04 | P0 | OCR review UI | `ocr_review_screen.dart` | P1-03 | Shows image+text | widget test | todo |
 | P1-05 | P1 | Offline smoke doc | `docs/offline-capabilities.md` | P1-04 | Steps reproducible | airplane mode | todo |

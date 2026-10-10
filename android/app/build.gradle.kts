@@ -7,7 +7,7 @@ plugins {
 android {
     namespace = "com.medicinereminder.medicine_remainder_app"
     // Latest stable at P0-06; align with README and Play policy over time.
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

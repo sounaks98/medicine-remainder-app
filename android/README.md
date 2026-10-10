@@ -5,7 +5,7 @@
 | Setting | Value | Notes |
 |---------|-------|--------|
 | `minSdk` | **24** | ML Kit bundled Latin OCR; room for notification APIs used later |
-| `compileSdk` | **35** | Latest stable at project setup; raise with Play policy |
+| `compileSdk` | **36** | Required by `image_picker` / AndroidX deps; raise with Play policy |
 | `targetSdk` | **35** | Match `compileSdk` unless Play Console requires otherwise |
 
 Configured in [`app/build.gradle.kts`](app/build.gradle.kts).
