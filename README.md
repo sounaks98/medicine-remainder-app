@@ -10,7 +10,7 @@ Offline-first Flutter app for capturing prescription images (or **entering presc
 |------|---------|
 | [Flutter](https://docs.flutter.dev/get-started/install) | **3.27+** (stable channel) |
 | Dart | **3.7+** (bundled with Flutter) |
-| Android SDK | **minSdk 24**; compile/target SDK at latest stable (e.g. 35) |
+| Android SDK | **minSdk 30** (LiteRT-LM Gemma spike); compile/target SDK at latest stable (e.g. 35) |
 | JDK | As required by your Flutter/Android Studio install |
 
 Verify your environment:
@@ -34,6 +34,16 @@ flutter doctor
    flutter run
    ```
 
+### Gemma 3n LiteRT-LM spike (debug, optional)
+
+Requires a **physical arm64** Android device (API 30+), Hugging Face Gemma license, and ~3.7 GB storage for `gemma-3n-E2B-it-int4.litertlm`:
+
+```bash
+flutter run --dart-define=HUGGINGFACE_TOKEN=hf_...
+```
+
+Open **Medicines → flask icon → Gemma spike**. See `tool/model_spike/gemma3n/README.md` and `docs/model-research.md` §10.
+
 4. **Drift code generation** (required after changing database tables under `lib/data/database/`):
 
    ```bash
@@ -55,7 +65,10 @@ flutter doctor
 | `drift` + `sqlite3_flutter_libs` | Type-safe SQLite persistence and migrations |
 | `path_provider` / `path` | App-private file paths (images, DB) |
 
-Additional packages (ML Kit, notifications, secure storage, ONNX) are added in later phases per the implementation plan.
+| `google_mlkit_text_recognition` | On-device OCR (bundled Latin model) |
+| `flutter_edge_ai` + `flutter_edge_ai_litertlm` | **Debug-only** Gemma 3n E2B LiteRT-LM spike (not production extraction) |
+
+Additional packages (notifications, secure storage) are added in later phases per the implementation plan.
 
 ## Project layout
 

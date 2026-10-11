@@ -3,7 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:medicine_remainder_app/features/medicines/presentation/medicine_list_screen.dart';
 import 'package:medicine_remainder_app/features/prescription/presentation/capture_screen.dart';
 import 'package:medicine_remainder_app/features/prescription/presentation/document_verify_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:medicine_remainder_app/features/prescription/presentation/extraction_review_screen.dart';
+import 'package:medicine_remainder_app/features/prescription/presentation/model_spike_screen.dart';
 import 'package:medicine_remainder_app/features/prescription/presentation/prescription_review_screen.dart';
 import 'package:medicine_remainder_app/features/reminders/presentation/adherence_screen.dart';
 
@@ -16,6 +18,7 @@ abstract final class AppRoutes {
   static const ocrReview = '/ocr-review';
   static const extractionReview = '/extraction-review';
   static const adherence = '/adherence';
+  static const modelSpike = '/dev/model-spike';
 }
 
 GoRouter createAppRouter() {
@@ -61,14 +64,31 @@ GoRouter createAppRouter() {
 
       GoRoute(
         path: AppRoutes.extractionReview,
-        builder: (context, state) => const ExtractionReviewScreen(),
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is! ExtractionReviewRouteArgs) {
+            return const _RouteErrorScreen(
+              message: 'Missing extraction review arguments.',
+            );
+          }
+          return ExtractionReviewScreen(
+            draft: extra.draft,
+            userId: extra.userId,
+            imagePath: extra.imagePath,
+            prescriptionImport: extra.prescriptionImport,
+          );
+        },
       ),
 
       GoRoute(
         path: AppRoutes.adherence,
         builder: (context, state) => const AdherenceScreen(),
       ),
-
+      if (kDebugMode)
+        GoRoute(
+          path: AppRoutes.modelSpike,
+          builder: (context, state) => const ModelSpikeScreen(),
+        ),
     ],
   );
 }

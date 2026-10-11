@@ -46,3 +46,12 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Large ONNX spike weights (download via tool/model_spike/download_models.py)
+tool/model_spike/*.onnx
+tool/model_spike/tokenizer.json
+tool/model_spike/*.json
+!tool/model_spike/requirements.txt
+tool/model_spike/output/
+tool/model_spike/gemma3n/*.litertlm
+**/*.litertlm

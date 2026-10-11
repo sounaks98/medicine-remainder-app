@@ -1,5 +1,6 @@
-/// Drift table definitions (split per entity in P5-01).
+/// Drift table name constants (definitions live under `tables/`).
 abstract final class SchemaTables {
+  static const String users = 'users';
   static const String medicines = 'medicines';
   static const String prescriptions = 'prescriptions';
   static const String reminderEvents = 'reminder_events';

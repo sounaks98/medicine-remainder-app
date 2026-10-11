@@ -41,6 +41,7 @@ class OcrRulesExtractionService implements MedicationExtractionService {
     return MedicationExtractionDraft(
       schemaVersion: medicationSchemaVersion,
       prescriptionId: _uuid.v4(),
+      userId: request.userId,
       medicines: medicines,
       rawOcrText: request.ocrText,
       extractionMethod: ExtractionMethod.ocrRules,
@@ -122,6 +123,8 @@ class OcrRulesExtractionService implements MedicationExtractionService {
       frequency: _missingString(),
       duration: _missingString(),
       timing: _missingString(),
+      startAt: _missingString(),
+      endAt: _missingString(),
       originalSourceText: MedicationField<String>(
         value: line,
         confidence: FieldConfidence.uncertain,
@@ -142,6 +145,8 @@ class OcrRulesExtractionService implements MedicationExtractionService {
       frequency: _missingString(),
       duration: _missingString(),
       timing: _missingString(),
+      startAt: _missingString(),
+      endAt: _missingString(),
       originalSourceText: _missingString(),
     );
   }

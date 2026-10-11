@@ -60,6 +60,7 @@ class _FakePipeline implements PrescriptionExtractionPipeline {
       draft: MedicationExtractionDraft(
         schemaVersion: 1,
         prescriptionId: 'p',
+        userId: 'user',
         medicines: const [],
         rawOcrText: cachedOcr.fullText,
         extractionMethod: ExtractionMethod.ocrRules,

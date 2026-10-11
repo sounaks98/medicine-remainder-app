@@ -87,6 +87,7 @@ class PrescriptionExtractionOrchestrator implements PrescriptionExtractionPipeli
     return MedicationExtractionDraft(
       schemaVersion: rules.schemaVersion,
       prescriptionId: rules.prescriptionId,
+      userId: rules.userId,
       medicines: vlm.medicines.isNotEmpty ? vlm.medicines : rules.medicines,
       rawOcrText: rules.rawOcrText,
       rawModelOutput: vlm.rawModelOutput,

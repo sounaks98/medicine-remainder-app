@@ -13,10 +13,12 @@ class ExtractionRequest {
   const ExtractionRequest({
     required this.imagePath,
     required this.ocrText,
+    this.userId = '',
   });
 
   final String imagePath;
   final String ocrText;
+  final String userId;
 }
 
 class ExtractionCapability {

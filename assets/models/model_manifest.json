@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "modelId": "HuggingFaceTB/SmolVLM-500M-Instruct",
+  "revision": "a7da5b986cb59b408707209984f360a5f4ad7e47",
+  "license": "Apache-2.0",
+  "quantization": "q4f16",
+  "baseResolveUrl": "https://huggingface.co/HuggingFaceTB/SmolVLM-500M-Instruct/resolve/a7da5b986cb59b408707209984f360a5f4ad7e47",
+  "onnxArtifacts": [
+    {
+      "id": "vision_encoder_q4f16",
+      "fileName": "vision_encoder_q4f16.onnx",
+      "role": "vision_encoder",
+      "url": "https://huggingface.co/HuggingFaceTB/SmolVLM-500M-Instruct/resolve/a7da5b986cb59b408707209984f360a5f4ad7e47/onnx/vision_encoder_q4f16.onnx",
+      "sizeBytes": 57691792,
+      "sha256": "d5f3df9fd7113e564b1e167de20750572d25fd75c822365f496ff467bc9e7457"
+    },
+    {
+      "id": "embed_tokens_q4f16",
+      "fileName": "embed_tokens_q4f16.onnx",
+      "role": "embed_tokens",
+      "url": "https://huggingface.co/HuggingFaceTB/SmolVLM-500M-Instruct/resolve/a7da5b986cb59b408707209984f360a5f4ad7e47/onnx/embed_tokens_q4f16.onnx",
+      "sizeBytes": 94618005,
+      "sha256": "76c3b8232c463118190d1c711f2a7bff00a72f2077b9b19998f3a2c6344eb035"
+    },
+    {
+      "id": "decoder_model_merged_q4f16",
+      "fileName": "decoder_model_merged_q4f16.onnx",
+      "role": "decoder_merged",
+      "url": "https://huggingface.co/HuggingFaceTB/SmolVLM-500M-Instruct/resolve/a7da5b986cb59b408707209984f360a5f4ad7e47/onnx/decoder_model_merged_q4f16.onnx",
+      "sizeBytes": 205328252,
+      "sha256": "7f828e9c1ae0290e766703677d1df2a8657ecadf24dfd55f5ff28ac23cf1cf41"
+    }
+  ],
+  "auxiliaryArtifacts": [
+    {
+      "id": "config",
+      "fileName": "config.json",
+      "url": "https://huggingface.co/HuggingFaceTB/SmolVLM-500M-Instruct/resolve/a7da5b986cb59b408707209984f360a5f4ad7e47/config.json"
+    },
+    {
+      "id": "tokenizer",
+      "fileName": "tokenizer.json",
+      "url": "https://huggingface.co/HuggingFaceTB/SmolVLM-500M-Instruct/resolve/a7da5b986cb59b408707209984f360a5f4ad7e47/tokenizer.json"
+    },
+    {
+      "id": "tokenizer_config",
+      "fileName": "tokenizer_config.json",
+      "url": "https://huggingface.co/HuggingFaceTB/SmolVLM-500M-Instruct/resolve/a7da5b986cb59b408707209984f360a5f4ad7e47/tokenizer_config.json"
+    },
+    {
+      "id": "preprocessor_config",
+      "fileName": "preprocessor_config.json",
+      "url": "https://huggingface.co/HuggingFaceTB/SmolVLM-500M-Instruct/resolve/a7da5b986cb59b408707209984f360a5f4ad7e47/preprocessor_config.json"
+    },
+    {
+      "id": "generation_config",
+      "fileName": "generation_config.json",
+      "url": "https://huggingface.co/HuggingFaceTB/SmolVLM-500M-Instruct/resolve/a7da5b986cb59b408707209984f360a5f4ad7e47/generation_config.json"
+    },
+    {
+      "id": "chat_template",
+      "fileName": "chat_template.json",
+      "url": "https://huggingface.co/HuggingFaceTB/SmolVLM-500M-Instruct/resolve/a7da5b986cb59b408707209984f360a5f4ad7e47/chat_template.json"
+    }
+  ],
+  "totalOnnxBytes": 357638049
+}

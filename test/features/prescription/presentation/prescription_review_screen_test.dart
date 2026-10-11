@@ -42,6 +42,7 @@ PrescriptionReviewBundle _sampleBundle() {
     draft: MedicationExtractionDraft(
       schemaVersion: 1,
       prescriptionId: 'id',
+      userId: 'user',
       medicines: [
         MedicineDraft(
           name: const MedicationField(
@@ -76,6 +77,14 @@ PrescriptionReviewBundle _sampleBundle() {
             provenance: Provenance.rules,
           ),
           timing: const MedicationField(
+            confidence: FieldConfidence.missing,
+            provenance: Provenance.rules,
+          ),
+          startAt: const MedicationField(
+            confidence: FieldConfidence.missing,
+            provenance: Provenance.rules,
+          ),
+          endAt: const MedicationField(
             confidence: FieldConfidence.missing,
             provenance: Provenance.rules,
           ),

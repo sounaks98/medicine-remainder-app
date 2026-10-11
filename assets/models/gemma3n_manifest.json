@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "experimentId": "gemma3n-e2b-litert-lm-spike",
+  "modelId": "google/gemma-3n-E2B-it-litert-lm",
+  "artifactFileName": "gemma-3n-E2B-it-int4.litertlm",
+  "license": "gemma",
+  "runtime": "litert-lm",
+  "flutterEdgeAi": {
+    "modelType": "gemmaIt",
+    "fileType": "litertlm"
+  },
+  "url": "https://huggingface.co/google/gemma-3n-E2B-it-litert-lm/resolve/main/gemma-3n-E2B-it-int4.litertlm",
+  "sizeBytes": 3660000000,
+  "sha256": null,
+  "notes": "Install via flutter_edge_ai fromHuggingFace(modelId, file: artifactFileName). Gated — accept Gemma license; set HUGGINGFACE_TOKEN."
+}

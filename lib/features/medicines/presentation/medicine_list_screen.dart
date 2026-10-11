@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,7 +10,17 @@ class MedicineListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Medicines')),
+      appBar: AppBar(
+        title: const Text('Medicines'),
+        actions: [
+          if (kDebugMode)
+            IconButton(
+              icon: const Icon(Icons.science_outlined),
+              tooltip: 'Gemma 3n LiteRT spike',
+              onPressed: () => context.push(AppRoutes.modelSpike),
+            ),
+        ],
+      ),
       body: const Center(
         child: Text('No confirmed medicines yet.'),
       ),

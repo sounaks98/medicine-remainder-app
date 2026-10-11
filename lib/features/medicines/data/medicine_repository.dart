@@ -2,7 +2,7 @@ import 'package:medicine_remainder_app/features/medicines/domain/medication_reco
 
 /// CRUD for confirmed medications (Drift-backed in P5-02).
 abstract class MedicineRepository {
-  Future<List<MedicationRecord>> listConfirmed();
+  Future<List<MedicationRecord>> listConfirmed({String? userId});
 
   Future<MedicationRecord> save(MedicationRecord record);
 

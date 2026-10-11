@@ -40,25 +40,25 @@ todos:
     status: completed
   - id: p2-01-model-manifest
     content: "P2-01: Pin SmolVLM revision in assets/models/model_manifest.json"
-    status: pending
+    status: completed
   - id: p2-02-download-onnx
     content: "P2-02: Download q4f16 ONNX trio to tool/model_spike/"
-    status: pending
+    status: completed
   - id: p2-03-inspect-onnx
     content: "P2-03: Python inspect_onnx.py — ops, I/O tensors → docs/model-research.md"
-    status: pending
+    status: completed
   - id: p2-04-reference-infer
     content: "P2-04: Desktop reference generation — tool/model_spike/run_reference.py"
-    status: pending
+    status: completed
   - id: p2-05-android-ort-load
     content: "P2-05: Android ORT session load per subgraph (device/logcat)"
-    status: pending
+    status: completed
   - id: p2-06-benchmark-spike
     content: "P2-06: Record memory + latency on 4 GB device in docs/model-research.md"
-    status: pending
+    status: completed
   - id: p2-07-go-nogo
     content: "P2-07: Record explicit VLM go/no-go in docs/model-research.md"
-    status: pending
+    status: completed
   - id: p3-01-extraction-interface
     content: "P3-01 (if go): MedicationExtractionService abstract interface"
     status: pending
@@ -82,34 +82,34 @@ todos:
     status: pending
   - id: p4-01-schema
     content: "P4-01: medication_schema_v1 types in shared/models/"
-    status: pending
+    status: completed
   - id: p4-02-validator
     content: "P4-02: ExtractionValidator — block auto-schedule on unconfirmed data"
-    status: pending
+    status: completed
   - id: p4-03-review-ui
     content: "P4-03: Extraction review UI with per-field edit + warnings"
-    status: pending
+    status: completed
   - id: p4-04-confirm-gate
     content: "P4-04: Confirm-only path to MedicationRecord (prescription_import.dart)"
-    status: pending
+    status: completed
   - id: p4-05-malformed-tests
     content: "P4-05: Malformed JSON / uncertainty unit tests"
-    status: pending
+    status: completed
   - id: p5-01-drift
     content: "P5-01: Drift schema v1 + migrations — app_database.dart"
-    status: pending
+    status: completed
   - id: p5-02-repos
     content: "P5-02: Medicine and prescription repositories"
-    status: pending
+    status: completed
   - id: p5-03-encrypt-images
     content: "P5-03: Encrypt prescription images in app-private storage"
-    status: pending
+    status: completed
   - id: p5-04-delete-cascade
     content: "P5-04: Delete cascades (DB + image files) tests"
-    status: pending
+    status: completed
   - id: p5-05-data-model-doc
     content: "P5-05: Complete docs/data-model.md"
-    status: pending
+    status: completed
   - id: p6-01-schedule
     content: "P6-01: Deterministic schedule generator — reminder_planner.dart"
     status: pending

@@ -192,7 +192,8 @@ Implementations (by phase):
 | Database | `drift` + `sqlite3_flutter_libs` | Migrations, typed queries |
 | OCR | `google_mlkit_text_recognition` (Phase 1) | Bundled offline Latin model |
 | Notifications | `flutter_local_notifications` (Phase 6) | Local schedules + reboot hooks |
-| VLM spike | `flutter_onnxruntime` (Phase 2+) | HF-published ONNX shards |
+| VLM spike (SmolVLM) | ONNX Runtime Android (Phase 2) | **NO-GO** — see `docs/model-research.md` §8 |
+| VLM spike (Gemma 3n) | `flutter_edge_ai_litertlm` | Debug-only `/dev/model-spike`; not wired to orchestrator |
 
 ## Architecture decision records (stubs)
 
