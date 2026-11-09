@@ -10,6 +10,10 @@
 
 Configured in [`app/build.gradle.kts`](app/build.gradle.kts).
 
+## Gemma 3n debug (Android Studio)
+
+Set `packageGemmaInDebug=true` in [`gradle.properties`](gradle.properties) or [`local.properties`](local.properties), with weights in `models/gemma3n/`. Then **Run** from Android Studio on an arm64 device. See [GEMMA3N_ANDROID_DEPLOYMENT.md](../GEMMA3N_ANDROID_DEPLOYMENT.md#debug-with-gemma-in-android-studio).
+
 ## ML Kit text recognition (Phase 1)
 
 Offline Latin OCR uses the **bundled** Android artifact (model ships in the APK/AAB), not the thin Play Services–downloaded model.

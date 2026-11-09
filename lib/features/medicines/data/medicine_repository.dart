@@ -4,6 +4,8 @@ import 'package:medicine_remainder_app/features/medicines/domain/medication_reco
 abstract class MedicineRepository {
   Future<List<MedicationRecord>> listConfirmed({String? userId});
 
+  Stream<List<MedicationRecord>> watchConfirmed({required String userId});
+
   Future<MedicationRecord> save(MedicationRecord record);
 
   Future<void> delete(String id);

@@ -48,6 +48,7 @@ class _FakePipeline implements PrescriptionExtractionPipeline {
   Future<PrescriptionReviewBundle> extractUnified({
     required String imagePath,
     required OcrResult cachedOcr,
+    void Function(String stageLabel)? onProgress,
   }) async {
     return PrescriptionReviewBundle(
       verification: const PrescriptionVerificationResult(

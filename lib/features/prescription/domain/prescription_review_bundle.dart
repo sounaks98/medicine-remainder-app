@@ -3,7 +3,7 @@ import 'package:medicine_remainder_app/features/prescription/domain/prescription
 import 'package:medicine_remainder_app/services/ocr/prescription_image_verifier.dart';
 import 'package:medicine_remainder_app/shared/models/prescription_likelihood.dart';
 
-/// Single merged output shown in review (OCR + rules + optional VLM).
+/// Gemma 3n extraction output shown in review.
 class PrescriptionReviewBundle {
   const PrescriptionReviewBundle({
     required this.verification,

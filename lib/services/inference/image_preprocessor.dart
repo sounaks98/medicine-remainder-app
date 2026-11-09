@@ -4,17 +4,24 @@ import 'dart:typed_data';
 
 import 'package:image/image.dart' as img;
 
+/// Reads raw or encrypted-at-rest prescription image bytes from [path].
+typedef PrescriptionImageBytesReader = Future<List<int>> Function(String path);
+
 /// Shared image preprocessing (OCR rotate/resize; Idefics3 tensors for VLM).
 class ImagePreprocessor {
-  const ImagePreprocessor();
+  const ImagePreprocessor({this.readImageBytes});
+
+  final PrescriptionImageBytesReader? readImageBytes;
 
   /// Longest edge cap for ML Kit OCR input (memory and latency).
   static const int maxOcrLongestEdge = 2048;
 
   /// Applies EXIF orientation, scales down if needed, returns JPEG bytes.
   Future<List<int>> preprocessForOcr(String imagePath) async {
-    final bytes = await File(imagePath).readAsBytes();
-    final decoded = img.decodeImage(bytes);
+    final bytes = readImageBytes != null
+        ? await readImageBytes!(imagePath)
+        : await File(imagePath).readAsBytes();
+    final decoded = img.decodeImage(Uint8List.fromList(bytes));
     if (decoded == null) {
       throw FormatException('Could not decode image at $imagePath');
     }

@@ -63,6 +63,7 @@ enum ExtractionMethod {
   ocrOnly,
   ocrRules,
   smolvlmOnnx,
+  gemma3n,
   manual;
 
   String get jsonValue {
@@ -73,6 +74,8 @@ enum ExtractionMethod {
         return 'ocr_rules';
       case ExtractionMethod.smolvlmOnnx:
         return 'smolvlm_onnx';
+      case ExtractionMethod.gemma3n:
+        return 'gemma3n_on_device';
       case ExtractionMethod.manual:
         return 'manual';
     }
@@ -86,6 +89,8 @@ enum ExtractionMethod {
         return ExtractionMethod.ocrRules;
       case 'smolvlm_onnx':
         return ExtractionMethod.smolvlmOnnx;
+      case 'gemma3n_on_device':
+        return ExtractionMethod.gemma3n;
       case 'manual':
         return ExtractionMethod.manual;
       default:

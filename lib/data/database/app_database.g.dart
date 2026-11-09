@@ -1514,6 +1514,17 @@ class $MedicinesTable extends Medicines
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       );
+  static const VerificationMeta _reminderScheduleJsonMeta =
+      const VerificationMeta('reminderScheduleJson');
+  @override
+  late final GeneratedColumn<String> reminderScheduleJson =
+      GeneratedColumn<String>(
+        'reminder_schedule_json',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1534,6 +1545,7 @@ class $MedicinesTable extends Medicines
     confirmedByUser,
     scheduleRuleId,
     frequencyConfidence,
+    reminderScheduleJson,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1702,6 +1714,15 @@ class $MedicinesTable extends Medicines
     } else if (isInserting) {
       context.missing(_frequencyConfidenceMeta);
     }
+    if (data.containsKey('reminder_schedule_json')) {
+      context.handle(
+        _reminderScheduleJsonMeta,
+        reminderScheduleJson.isAcceptableOrUnknown(
+          data['reminder_schedule_json']!,
+          _reminderScheduleJsonMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1783,6 +1804,10 @@ class $MedicinesTable extends Medicines
         DriftSqlType.string,
         data['${effectivePrefix}frequency_confidence'],
       )!,
+      reminderScheduleJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reminder_schedule_json'],
+      ),
     );
   }
 
@@ -1811,6 +1836,7 @@ class Medicine extends DataClass implements Insertable<Medicine> {
   final bool confirmedByUser;
   final String? scheduleRuleId;
   final String frequencyConfidence;
+  final String? reminderScheduleJson;
   const Medicine({
     required this.id,
     required this.userId,
@@ -1830,6 +1856,7 @@ class Medicine extends DataClass implements Insertable<Medicine> {
     required this.confirmedByUser,
     this.scheduleRuleId,
     required this.frequencyConfidence,
+    this.reminderScheduleJson,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1860,6 +1887,9 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       map['schedule_rule_id'] = Variable<String>(scheduleRuleId);
     }
     map['frequency_confidence'] = Variable<String>(frequencyConfidence);
+    if (!nullToAbsent || reminderScheduleJson != null) {
+      map['reminder_schedule_json'] = Variable<String>(reminderScheduleJson);
+    }
     return map;
   }
 
@@ -1891,6 +1921,9 @@ class Medicine extends DataClass implements Insertable<Medicine> {
           ? const Value.absent()
           : Value(scheduleRuleId),
       frequencyConfidence: Value(frequencyConfidence),
+      reminderScheduleJson: reminderScheduleJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminderScheduleJson),
     );
   }
 
@@ -1920,6 +1953,9 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       frequencyConfidence: serializer.fromJson<String>(
         json['frequencyConfidence'],
       ),
+      reminderScheduleJson: serializer.fromJson<String?>(
+        json['reminderScheduleJson'],
+      ),
     );
   }
   @override
@@ -1944,6 +1980,7 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       'confirmedByUser': serializer.toJson<bool>(confirmedByUser),
       'scheduleRuleId': serializer.toJson<String?>(scheduleRuleId),
       'frequencyConfidence': serializer.toJson<String>(frequencyConfidence),
+      'reminderScheduleJson': serializer.toJson<String?>(reminderScheduleJson),
     };
   }
 
@@ -1966,6 +2003,7 @@ class Medicine extends DataClass implements Insertable<Medicine> {
     bool? confirmedByUser,
     Value<String?> scheduleRuleId = const Value.absent(),
     String? frequencyConfidence,
+    Value<String?> reminderScheduleJson = const Value.absent(),
   }) => Medicine(
     id: id ?? this.id,
     userId: userId ?? this.userId,
@@ -1987,6 +2025,9 @@ class Medicine extends DataClass implements Insertable<Medicine> {
         ? scheduleRuleId.value
         : this.scheduleRuleId,
     frequencyConfidence: frequencyConfidence ?? this.frequencyConfidence,
+    reminderScheduleJson: reminderScheduleJson.present
+        ? reminderScheduleJson.value
+        : this.reminderScheduleJson,
   );
   Medicine copyWithCompanion(MedicinesCompanion data) {
     return Medicine(
@@ -2024,6 +2065,9 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       frequencyConfidence: data.frequencyConfidence.present
           ? data.frequencyConfidence.value
           : this.frequencyConfidence,
+      reminderScheduleJson: data.reminderScheduleJson.present
+          ? data.reminderScheduleJson.value
+          : this.reminderScheduleJson,
     );
   }
 
@@ -2047,7 +2091,8 @@ class Medicine extends DataClass implements Insertable<Medicine> {
           ..write('confirmedAt: $confirmedAt, ')
           ..write('confirmedByUser: $confirmedByUser, ')
           ..write('scheduleRuleId: $scheduleRuleId, ')
-          ..write('frequencyConfidence: $frequencyConfidence')
+          ..write('frequencyConfidence: $frequencyConfidence, ')
+          ..write('reminderScheduleJson: $reminderScheduleJson')
           ..write(')'))
         .toString();
   }
@@ -2072,6 +2117,7 @@ class Medicine extends DataClass implements Insertable<Medicine> {
     confirmedByUser,
     scheduleRuleId,
     frequencyConfidence,
+    reminderScheduleJson,
   );
   @override
   bool operator ==(Object other) =>
@@ -2094,7 +2140,8 @@ class Medicine extends DataClass implements Insertable<Medicine> {
           other.confirmedAt == this.confirmedAt &&
           other.confirmedByUser == this.confirmedByUser &&
           other.scheduleRuleId == this.scheduleRuleId &&
-          other.frequencyConfidence == this.frequencyConfidence);
+          other.frequencyConfidence == this.frequencyConfidence &&
+          other.reminderScheduleJson == this.reminderScheduleJson);
 }
 
 class MedicinesCompanion extends UpdateCompanion<Medicine> {
@@ -2116,6 +2163,7 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
   final Value<bool> confirmedByUser;
   final Value<String?> scheduleRuleId;
   final Value<String> frequencyConfidence;
+  final Value<String?> reminderScheduleJson;
   final Value<int> rowid;
   const MedicinesCompanion({
     this.id = const Value.absent(),
@@ -2136,6 +2184,7 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
     this.confirmedByUser = const Value.absent(),
     this.scheduleRuleId = const Value.absent(),
     this.frequencyConfidence = const Value.absent(),
+    this.reminderScheduleJson = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MedicinesCompanion.insert({
@@ -2157,6 +2206,7 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
     this.confirmedByUser = const Value.absent(),
     this.scheduleRuleId = const Value.absent(),
     required String frequencyConfidence,
+    this.reminderScheduleJson = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        userId = Value(userId),
@@ -2190,6 +2240,7 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
     Expression<bool>? confirmedByUser,
     Expression<String>? scheduleRuleId,
     Expression<String>? frequencyConfidence,
+    Expression<String>? reminderScheduleJson,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2212,6 +2263,8 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
       if (scheduleRuleId != null) 'schedule_rule_id': scheduleRuleId,
       if (frequencyConfidence != null)
         'frequency_confidence': frequencyConfidence,
+      if (reminderScheduleJson != null)
+        'reminder_schedule_json': reminderScheduleJson,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2235,6 +2288,7 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
     Value<bool>? confirmedByUser,
     Value<String?>? scheduleRuleId,
     Value<String>? frequencyConfidence,
+    Value<String?>? reminderScheduleJson,
     Value<int>? rowid,
   }) {
     return MedicinesCompanion(
@@ -2256,6 +2310,7 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
       confirmedByUser: confirmedByUser ?? this.confirmedByUser,
       scheduleRuleId: scheduleRuleId ?? this.scheduleRuleId,
       frequencyConfidence: frequencyConfidence ?? this.frequencyConfidence,
+      reminderScheduleJson: reminderScheduleJson ?? this.reminderScheduleJson,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2317,6 +2372,11 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
     if (frequencyConfidence.present) {
       map['frequency_confidence'] = Variable<String>(frequencyConfidence.value);
     }
+    if (reminderScheduleJson.present) {
+      map['reminder_schedule_json'] = Variable<String>(
+        reminderScheduleJson.value,
+      );
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2344,6 +2404,7 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
           ..write('confirmedByUser: $confirmedByUser, ')
           ..write('scheduleRuleId: $scheduleRuleId, ')
           ..write('frequencyConfidence: $frequencyConfidence, ')
+          ..write('reminderScheduleJson: $reminderScheduleJson, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4448,6 +4509,7 @@ typedef $$MedicinesTableCreateCompanionBuilder = MedicinesCompanion Function({
   Value<bool> confirmedByUser,
   Value<String?> scheduleRuleId,
   required String frequencyConfidence,
+  Value<String?> reminderScheduleJson,
   Value<int> rowid,
 });
 typedef $$MedicinesTableUpdateCompanionBuilder = MedicinesCompanion Function({
@@ -4469,6 +4531,7 @@ typedef $$MedicinesTableUpdateCompanionBuilder = MedicinesCompanion Function({
   Value<bool> confirmedByUser,
   Value<String?> scheduleRuleId,
   Value<String> frequencyConfidence,
+  Value<String?> reminderScheduleJson,
   Value<int> rowid,
 });
 
@@ -4616,6 +4679,11 @@ class $$MedicinesTableFilterComposer
 
   ColumnFilters<String> get frequencyConfidence => $composableBuilder(
     column: $table.frequencyConfidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reminderScheduleJson => $composableBuilder(
+    column: $table.reminderScheduleJson,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4780,6 +4848,11 @@ class $$MedicinesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get reminderScheduleJson => $composableBuilder(
+    column: $table.reminderScheduleJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$UsersTableOrderingComposer get userId {
     final $$UsersTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -4895,6 +4968,11 @@ class $$MedicinesTableAnnotationComposer
 
   GeneratedColumn<String> get frequencyConfidence => $composableBuilder(
     column: $table.frequencyConfidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get reminderScheduleJson => $composableBuilder(
+    column: $table.reminderScheduleJson,
     builder: (column) => column,
   );
 
@@ -5020,6 +5098,7 @@ class $$MedicinesTableTableManager
                 Value<bool> confirmedByUser = const Value.absent(),
                 Value<String?> scheduleRuleId = const Value.absent(),
                 Value<String> frequencyConfidence = const Value.absent(),
+                Value<String?> reminderScheduleJson = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MedicinesCompanion(
                 id: id,
@@ -5040,6 +5119,7 @@ class $$MedicinesTableTableManager
                 confirmedByUser: confirmedByUser,
                 scheduleRuleId: scheduleRuleId,
                 frequencyConfidence: frequencyConfidence,
+                reminderScheduleJson: reminderScheduleJson,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -5062,6 +5142,7 @@ class $$MedicinesTableTableManager
                 Value<bool> confirmedByUser = const Value.absent(),
                 Value<String?> scheduleRuleId = const Value.absent(),
                 required String frequencyConfidence,
+                Value<String?> reminderScheduleJson = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MedicinesCompanion.insert(
                 id: id,
@@ -5082,6 +5163,7 @@ class $$MedicinesTableTableManager
                 confirmedByUser: confirmedByUser,
                 scheduleRuleId: scheduleRuleId,
                 frequencyConfidence: frequencyConfidence,
+                reminderScheduleJson: reminderScheduleJson,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

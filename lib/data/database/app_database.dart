@@ -37,6 +37,9 @@ class AppDatabase extends _$AppDatabase {
         if (from < 1 && to >= 1) {
           await m.createAll();
         }
+        if (from < 2 && to >= 2) {
+          await m.addColumn(medicines, medicines.reminderScheduleJson);
+        }
       },
       beforeOpen: (details) async {
         await customStatement('PRAGMA foreign_keys = ON');

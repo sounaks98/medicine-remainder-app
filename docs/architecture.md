@@ -176,7 +176,8 @@ Implementations (by phase):
 | `features/users/` | Local profiles, active-user selection (planned) |
 | `features/prescription/` | Capture, manual entry, OCR review, extraction review, image store |
 | `features/medicines/` | Confirmed meds list, `MedicineRepository` |
-| `features/reminders/` | Planner, notifications, adherence |
+| `features/reminders/` | Planner, notifications, adherence, `MedicationReminderSchedule` (meal / interval) |
+| `features/users/` | Profiles, `UserMealProfile` (local prefs) |
 | `services/ocr/` | ML Kit wrapper, `PrescriptionImageVerifier` |
 | `services/inference/` | Extraction, VLM loop, assets, tokenizer |
 | `shared/models/` | `FieldConfidence`, shared types |
@@ -293,10 +294,37 @@ Each ADR follows: **Status**, **Context**, **Decision**, **Consequences**. Updat
 
 | | |
 |--|--|
-| **Status** | Proposed |
+| **Status** | Accepted (MF-A: session + user repository, MF-B: list/add entry UX) |
 | **Context** | One device may manage medications for multiple people (e.g. family); data must not leak across profiles. |
-| **Decision** | `UserProfile` table with UUID `userId`; all domain tables include `userId`; single shared Drift database; UI profile switcher sets active user. |
-| **Consequences** | No remote authentication; deleting a profile cascades its prescriptions, images, and reminders. Default profile created on first launch. |
+| **Decision** | `users` table with UUID `id`; all domain tables include `userId`; single shared Drift database; **`activeUserId`** persisted in `shared_preferences` (`last_active_user_id`); app entry is **user list** or **add user** when no profile is selected — not a silent default on launch. |
+| **Consequences** | No remote authentication; deleting a profile cascades its prescriptions, images, and reminders. `ensureUserExists` remains for legacy prescription saves only; explicit `createUser` is the first-run path. Presentation and repos must receive `userId` from route or `activeUserIdProvider` (MF-06+). |
+
+---
+
+### MF-01: `userId` call-site inventory (audit)
+
+Audit date: 2026-10-14. Scope: `lib/**` (excluding generated `app_database.g.dart`).
+
+| Area | Path | Pattern | Gap / follow-up |
+|------|------|---------|-----------------|
+| Router | `app/router.dart` | `initialLocation: '/'` → medicines; no `/users` routes | **MF-13** — user-first redirects |
+| Bootstrap | `data/database/user_bootstrap.dart` | `ensureUserExists(..., displayName: 'Default profile')` | Implicit profile on prescription/medicine save; not app launch |
+| Medicines repo | `features/medicines/data/drift_medicine_repository.dart` | `listConfirmed({String? userId})` — **omits filter when null** | **MF-07** — require `userId` |
+| Medicines repo | same | `save` calls `ensureUserExists` | Side-effect profile creation |
+| Prescription repo | `features/prescription/data/prescription_repository.dart` | `save` calls `ensureUserExists` | Same as medicines |
+| Presentation | `medicines/presentation/medicine_list_screen.dart` | No `userId`; global home | **MF-06** — route-scoped |
+| Presentation | `prescription/presentation/capture_screen.dart`, `document_verify_screen.dart`, `prescription_review_screen.dart` | No `userId` in capture → review chain | **MF-06** — pass active profile |
+| Presentation | `prescription/presentation/extraction_review_screen.dart` | Requires `userId` via route `extra` | OK when caller supplies id |
+| Domain | `prescription/domain/prescription_import.dart` | `confirm` requires `userId` param | OK |
+| Inference | `services/inference/medication_extraction_service.dart` | `ExtractionRequest.userId` defaults to **`''`** | Empty id flows through OCR rules draft |
+| Inference | `services/inference/ocr_rules_extraction_service.dart` | Copies `request.userId` into draft | Depends on caller setting request |
+| Orchestrator | `prescription/domain/prescription_extraction_orchestrator.dart` | `userId: rules.userId` from rules extractor output | Often empty until MF-06 wires active user into pipeline |
+| Schema | `shared/validation/medication_schema.dart` | Requires non-empty `userId` string in JSON | OK at validation boundary |
+| Models | `shared/models/medication_extraction_draft.dart` | Required `userId` field | OK |
+| Reminders | `features/reminders/data/*` | Tables include `userId`; scheduler not yet profile-aware in copy | **MF-09–MF-11** |
+| Session | `features/users/` | **Absent** before MF-02 | Implemented in MF-A |
+
+**Single implicit profile ID:** none hardcoded in app code; the only implicit behavior is **`ensureUserExists` + optional unscoped `listConfirmed()`**.
 
 ---
 

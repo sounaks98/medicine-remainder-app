@@ -4,6 +4,13 @@ Living checklist synced with [§12](.cursor/plans/implementaion.plan.md#12-prior
 
 **Phase 3** applies only if **P2-07** is **go**; if **no-go**, skip P3-01–P3-07 and continue at P4-01.
 
+## App finetuning / scheduling
+
+| ID | P | Task | Paths | Deps | Acceptance | Verify | Status |
+|----|---|------|-------|------|------------|--------|--------|
+| MF-SCH-01 | P0 | Hybrid meal/interval schedule UI + domain | `medicine_review_*`, `medication_reminder_schedule.dart` | MF-05 | Card modes + course dates | `flutter test test/features/reminders/domain` | done |
+| MF-SCH-02 | P1 | Wire confirm → `reminderScheduleJson` + notification planner | `prescription_import`, `notification_scheduler` | MF-SCH-01, P6 | Reminders from rules | device | todo |
+
 ## Phase 0
 
 | ID | P | Task | Paths | Deps | Acceptance | Verify | Status |

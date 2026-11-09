@@ -22,6 +22,7 @@ class MedicationRecord {
     required this.confirmedByUser,
     this.scheduleRuleId,
     this.frequencyConfidence = FieldConfidence.known,
+    this.reminderScheduleJson,
   });
 
   final String id;
@@ -42,6 +43,8 @@ class MedicationRecord {
   final bool confirmedByUser;
   final String? scheduleRuleId;
   final FieldConfidence frequencyConfidence;
+  /// JSON blob: [MedicationReminderSchedule] (user-confirmed rules).
+  final String? reminderScheduleJson;
 
   static MedicationRecord fromConfirmedDraft({
     required String medicineId,

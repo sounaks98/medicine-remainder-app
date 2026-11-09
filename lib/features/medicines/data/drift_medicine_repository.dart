@@ -12,16 +12,30 @@ class DriftMedicineRepository implements MedicineRepository {
 
   @override
   Future<List<MedicationRecord>> listConfirmed({String? userId}) async {
-    final query = _db.select(_db.medicines)
+    final rows = await _confirmedQuery(userId: userId).get();
+    return rows.map(_mapRow).toList();
+  }
+
+  @override
+  Stream<List<MedicationRecord>> watchConfirmed({required String userId}) {
+    return _confirmedQuery(userId: userId)
+        .watch()
+        .map((rows) => rows.map(_mapRow).toList());
+  }
+
+  SimpleSelectStatement<$MedicinesTable, Medicine> _confirmedQuery({
+    String? userId,
+  }) {
+    return _db.select(_db.medicines)
       ..where((tbl) {
-        Expression<bool> expr = tbl.reviewStatus.equals(ReviewStatus.confirmed.name);
+        Expression<bool> expr =
+            tbl.reviewStatus.equals(ReviewStatus.confirmed.name);
         if (userId != null) {
           expr = expr & tbl.userId.equals(userId);
         }
         return expr;
-      });
-    final rows = await query.get();
-    return rows.map(_mapRow).toList();
+      })
+      ..orderBy([(tbl) => OrderingTerm.asc(tbl.name)]);
   }
 
   @override
@@ -47,6 +61,7 @@ class DriftMedicineRepository implements MedicineRepository {
         confirmedByUser: Value(record.confirmedByUser),
         scheduleRuleId: Value(record.scheduleRuleId),
         frequencyConfidence: Value(record.frequencyConfidence.name),
+        reminderScheduleJson: Value(record.reminderScheduleJson),
       ),
     );
     return record;
@@ -83,6 +98,7 @@ class DriftMedicineRepository implements MedicineRepository {
         (e) => e.name == row.frequencyConfidence,
         orElse: () => FieldConfidence.missing,
       ),
+      reminderScheduleJson: row.reminderScheduleJson,
     );
   }
 }

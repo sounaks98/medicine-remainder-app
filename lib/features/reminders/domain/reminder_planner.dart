@@ -1,6 +1,6 @@
 import 'package:medicine_remainder_app/features/reminders/domain/schedule_rule.dart';
 
-/// Deterministic expansion of [ScheduleRule] into fire times.
+/// Deterministic expansion of [ScheduleRule] into fire times (legacy).
 class ReminderPlanner {
   const ReminderPlanner();
 

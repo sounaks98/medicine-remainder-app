@@ -23,6 +23,7 @@ class Medicines extends Table {
   BoolColumn get confirmedByUser => boolean().withDefault(const Constant(false))();
   TextColumn get scheduleRuleId => text().nullable()();
   TextColumn get frequencyConfidence => text()();
+  TextColumn get reminderScheduleJson => text().nullable()();
 
   @override
   Set<Column<Object>> get primaryKey => {id};

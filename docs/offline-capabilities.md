@@ -26,6 +26,16 @@ This document describes what works **without network access** after the app is i
 
 Future phases (VLM download, cloud sync, push) are out of scope here.
 
+## Meal profile and hybrid schedules (local)
+
+| Feature | Offline? | Notes |
+|---------|----------|--------|
+| Per-profile meal times | Yes | `SharedPreferences` (`user_meal_profile_{userId}`) |
+| Meal-based / interval-based review UI | Yes | Rules stored in `medicines.reminderScheduleJson` on confirm |
+| Local notification scheduling | Partial | Requires Phase 6 scheduler; exact alarm timing subject to OS limits |
+
+Meal times are edited from **Review prescription** (app bar) or when a card detects a missing meal time.
+
 ## Airplane-mode OCR smoke test
 
 Use this checklist on a **physical device** with a printed or on-screen prescription image (de-identified sample).

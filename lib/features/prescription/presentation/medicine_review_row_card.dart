@@ -1,19 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:medicine_remainder_app/features/prescription/presentation/editable_medicine_row.dart';
+import 'package:medicine_remainder_app/features/prescription/presentation/medicine_review_schedule_section.dart';
+import 'package:medicine_remainder_app/features/reminders/domain/meal_schedule_resolver.dart';
+import 'package:medicine_remainder_app/features/reminders/domain/medication_reminder_schedule.dart';
+import 'package:medicine_remainder_app/features/users/domain/user_meal_profile.dart';
 
 class MedicineReviewRowCard extends StatefulWidget {
   const MedicineReviewRowCard({
     super.key,
     required this.index,
     required this.row,
+    required this.userId,
+    required this.mealProfile,
     required this.onChanged,
     required this.onConfirm,
+    required this.onReject,
   });
 
   final int index;
   final EditableMedicineRow row;
+  final String userId;
+  final UserMealProfile mealProfile;
   final VoidCallback onChanged;
   final VoidCallback onConfirm;
+  final VoidCallback onReject;
 
   @override
   State<MedicineReviewRowCard> createState() => _MedicineReviewRowCardState();
@@ -23,11 +33,9 @@ class _MedicineReviewRowCardState extends State<MedicineReviewRowCard> {
   late final TextEditingController _name;
   late final TextEditingController _strength;
   late final TextEditingController _count;
-  late final TextEditingController _frequency;
-  late final TextEditingController _duration;
   late final TextEditingController _route;
-  late final TextEditingController _timing;
-  late final TextEditingController _instructions;
+  late final TextEditingController _prescriptionInstructions;
+  late final TextEditingController _notes;
 
   EditableMedicineRow get row => widget.row;
 
@@ -37,11 +45,11 @@ class _MedicineReviewRowCardState extends State<MedicineReviewRowCard> {
     _name = TextEditingController(text: row.name);
     _strength = TextEditingController(text: row.strength);
     _count = TextEditingController(text: row.count);
-    _frequency = TextEditingController(text: row.frequency);
-    _duration = TextEditingController(text: row.duration);
     _route = TextEditingController(text: row.route);
-    _timing = TextEditingController(text: row.timing);
-    _instructions = TextEditingController(text: row.doseInstructions);
+    _prescriptionInstructions = TextEditingController(
+      text: row.prescriptionInstructionsSummary,
+    );
+    _notes = TextEditingController(text: row.additionalNotes);
   }
 
   @override
@@ -49,11 +57,9 @@ class _MedicineReviewRowCardState extends State<MedicineReviewRowCard> {
     _name.dispose();
     _strength.dispose();
     _count.dispose();
-    _frequency.dispose();
-    _duration.dispose();
     _route.dispose();
-    _timing.dispose();
-    _instructions.dispose();
+    _prescriptionInstructions.dispose();
+    _notes.dispose();
     super.dispose();
   }
 
@@ -61,12 +67,25 @@ class _MedicineReviewRowCardState extends State<MedicineReviewRowCard> {
     row.name = _name.text;
     row.strength = _strength.text;
     row.count = _count.text;
-    row.frequency = _frequency.text;
-    row.duration = _duration.text;
     row.route = _route.text;
-    row.timing = _timing.text;
-    row.doseInstructions = _instructions.text;
+    row.additionalNotes = _notes.text;
     widget.onChanged();
+  }
+
+  bool _scheduleIsValid() {
+    if (row.reminderSchedule.mode == ReminderScheduleMode.mealBased) {
+      try {
+        MealScheduleResolver.resolve(
+          schedule: row.reminderSchedule.meal,
+          profile: widget.mealProfile,
+          onLocalDate: row.reminderSchedule.course.startDate,
+        );
+        return true;
+      } on MissingMealTimeException {
+        return false;
+      }
+    }
+    return row.reminderSchedule.course.durationDays >= 1;
   }
 
   @override
@@ -94,107 +113,96 @@ class _MedicineReviewRowCardState extends State<MedicineReviewRowCard> {
                     backgroundColor: theme.colorScheme.primaryContainer,
                     visualDensity: VisualDensity.compact,
                   ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Table(
-              columnWidths: const {
-                0: FixedColumnWidth(110),
-                1: FlexColumnWidth(),
-              },
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              children: [
-                _fieldRow(
-                  label: 'Name',
-                  child: _textField(_name, 'Medicine name', readOnly),
-                ),
-                _fieldRow(
-                  label: 'Strength',
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: _textField(
-                          _strength,
-                          '500',
-                          readOnly,
-                          keyboardType: TextInputType.number,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          initialValue: EditableMedicineRow.strengthUnits
-                                  .contains(row.strengthUnit)
-                              ? row.strengthUnit
-                              : EditableMedicineRow.strengthUnits.first,
-                          decoration: const InputDecoration(
-                            isDense: true,
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 8,
-                            ),
-                          ),
-                          items: EditableMedicineRow.strengthUnits
-                              .map(
-                                (unit) => DropdownMenuItem(
-                                  value: unit,
-                                  child: Text(unit),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: readOnly
-                              ? null
-                              : (value) {
-                                  if (value == null) {
-                                    return;
-                                  }
-                                  row.strengthUnit = value;
-                                  widget.onChanged();
-                                  setState(() {});
-                                },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                _fieldRow(
-                  label: 'Count / dose',
-                  child: _textField(_count, 'e.g. 1 tablet, 5 ml', readOnly),
-                ),
-                _fieldRow(
-                  label: 'Frequency',
-                  child: _textField(_frequency, 'Twice daily', readOnly),
-                ),
-                _fieldRow(
-                  label: 'Duration',
-                  child: _textField(_duration, '7 days', readOnly),
-                ),
-                _fieldRow(
-                  label: 'Route',
-                  child: _textField(_route, 'Oral', readOnly),
-                ),
-                _fieldRow(
-                  label: 'Timing',
-                  child: _textField(_timing, 'After meals', readOnly),
-                ),
-                _fieldRow(
-                  label: 'Instructions',
-                  child: _textField(
-                    _instructions,
-                    'Additional notes',
-                    readOnly,
-                    maxLines: 2,
-                  ),
+                IconButton(
+                  icon: const Icon(Icons.close, size: 20),
+                  tooltip: row.confirmed
+                      ? 'Remove confirmed medicine'
+                      : 'Reject this medicine',
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                  onPressed: () {
+                    _syncRowFromControllers();
+                    widget.onReject();
+                  },
                 ),
               ],
             ),
             const SizedBox(height: 12),
+            Text('Medication details', style: theme.textTheme.titleSmall),
+            const SizedBox(height: 8),
+            _textField(_name, 'Medicine name', readOnly),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: _textField(
+                    _strength,
+                    'Strength',
+                    readOnly,
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    initialValue: EditableMedicineRow.strengthUnits
+                            .contains(row.strengthUnit)
+                        ? row.strengthUnit
+                        : EditableMedicineRow.strengthUnits.first,
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      border: OutlineInputBorder(),
+                      labelText: 'Unit',
+                    ),
+                    items: EditableMedicineRow.strengthUnits
+                        .map((u) => DropdownMenuItem(value: u, child: Text(u)))
+                        .toList(),
+                    onChanged: readOnly
+                        ? null
+                        : (value) {
+                            if (value == null) return;
+                            row.strengthUnit = value;
+                            widget.onChanged();
+                            setState(() {});
+                          },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            _textField(_count, 'Dose amount / instructions', readOnly),
+            const SizedBox(height: 8),
+            _textField(_route, 'Route (e.g. oral)', readOnly),
+            const SizedBox(height: 16),
+            MedicineReviewScheduleSection(
+              row: row,
+              readOnly: readOnly,
+              mealProfile: widget.mealProfile,
+              userId: widget.userId,
+              onChanged: () {
+                _syncRowFromControllers();
+                widget.onChanged();
+                setState(() {});
+              },
+            ),
+            const SizedBox(height: 16),
+            Text('Additional details', style: theme.textTheme.titleSmall),
+            const SizedBox(height: 8),
+            _textField(
+              _prescriptionInstructions,
+              'Original prescription instructions (frequency / timing)',
+              readOnly,
+              maxLines: 2,
+            ),
+            const SizedBox(height: 8),
+            _textField(_notes, 'Additional notes', readOnly, maxLines: 2),
+            const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerRight,
               child: FilledButton(
-                onPressed: readOnly
+                onPressed: readOnly || !_scheduleIsValid()
                     ? null
                     : () {
                         _syncRowFromControllers();
@@ -203,24 +211,19 @@ class _MedicineReviewRowCardState extends State<MedicineReviewRowCard> {
                 child: const Text('Confirm row'),
               ),
             ),
+            if (!readOnly &&
+                row.reminderSchedule.mode == ReminderScheduleMode.mealBased &&
+                !_scheduleIsValid())
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  'Configure the required meal time in your profile before confirming.',
+                  style: TextStyle(color: theme.colorScheme.error),
+                ),
+              ),
           ],
         ),
       ),
-    );
-  }
-
-  TableRow _fieldRow({required String label, required Widget child}) {
-    return TableRow(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(right: 8, bottom: 8, top: 8),
-          child: Text(label),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: child,
-        ),
-      ],
     );
   }
 
@@ -240,7 +243,6 @@ class _MedicineReviewRowCardState extends State<MedicineReviewRowCard> {
         hintText: hint,
         isDense: true,
         border: const OutlineInputBorder(),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
       ),
       onChanged: readOnly ? null : (_) => _syncRowFromControllers(),
     );

@@ -5,6 +5,7 @@ import 'package:medicine_remainder_app/features/prescription/domain/prescription
 import 'package:medicine_remainder_app/features/prescription/domain/prescription_extraction_pipeline.dart';
 import 'package:medicine_remainder_app/features/prescription/domain/prescription_import.dart';
 import 'package:medicine_remainder_app/services/inference/image_preprocessor.dart';
+import 'package:medicine_remainder_app/services/inference/gemma_extraction_service.dart';
 import 'package:medicine_remainder_app/services/inference/ocr_rules_extraction_service.dart';
 import 'package:medicine_remainder_app/services/ocr/mlkit_ocr_service.dart';
 import 'package:medicine_remainder_app/services/inference/gemma3n_litert_service.dart';
@@ -20,9 +21,10 @@ final prescriptionImportProvider = Provider<PrescriptionImport>(
   ),
 );
 
-final imagePreprocessorProvider = Provider<ImagePreprocessor>(
-  (ref) => const ImagePreprocessor(),
-);
+final imagePreprocessorProvider = Provider<ImagePreprocessor>((ref) {
+  final store = ref.watch(prescriptionImageStoreProvider);
+  return ImagePreprocessor(readImageBytes: store.readBytes);
+});
 
 final mlkitOcrServiceProvider = Provider<MlkitOcrService>((ref) {
   final service = MlkitOcrService(
@@ -47,11 +49,17 @@ final gemma3nLitertServiceProvider =
       return service;
     });
 
+final gemmaExtractionServiceProvider = Provider<GemmaExtractionService>((ref) {
+  final service = GemmaExtractionService(
+    imageStore: ref.watch(prescriptionImageStoreProvider),
+  );
+  ref.onDispose(service.dispose);
+  return service;
+});
+
 final prescriptionExtractionPipelineProvider =
     Provider<PrescriptionExtractionPipeline>((ref) {
       return PrescriptionExtractionOrchestrator(
-        ocrService: ref.watch(mlkitOcrServiceProvider),
-        verifier: ref.watch(prescriptionImageVerifierProvider),
-        rulesExtractor: ref.watch(ocrRulesExtractionServiceProvider),
+        gemmaExtractor: ref.watch(gemmaExtractionServiceProvider),
       );
     });

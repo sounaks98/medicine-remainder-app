@@ -112,19 +112,19 @@ todos:
     status: completed
   - id: p6-01-schedule
     content: "P6-01: Deterministic schedule generator — reminder_planner.dart"
-    status: pending
+    status: completed
   - id: p6-02-notifications
     content: "P6-02: Local notification scheduler integration"
-    status: pending
+    status: completed
   - id: p6-03-boot
     content: "P6-03: BootReceiver reschedule after reboot"
-    status: pending
+    status: completed
   - id: p6-04-adherence
     content: "P6-04: Adherence taken/skipped/unknown logging UI"
-    status: pending
+    status: completed
   - id: p6-05-dedupe
     content: "P6-05: Duplicate reminder prevention + reconciliation"
-    status: pending
+    status: completed
   - id: p7-01-benchmark-harness
     content: "P7-01: Benchmark harness in tool/benchmark/"
     status: pending

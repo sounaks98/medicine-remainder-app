@@ -12,3 +12,7 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
+
+# Gemma chunks copied by prepareGemmaModelChunks (release / -PpackageGemmaInDebug)
+/app/src/main/assets/gemma/
+/gemma_pack*/src/main/assets/

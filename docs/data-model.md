@@ -1,10 +1,29 @@
+# Data model (schema v2 scheduling)
+
+## Hybrid reminder schedule (v2)
+
+User-confirmed rules are stored separately from prescription OCR text:
+
+| Concept | Storage |
+|---------|---------|
+| Prescription frequency/timing (OCR) | `medicines.frequency`, `medicines.timing` (unchanged; review-only text) |
+| Confirmed schedule rules | `medicines.reminderScheduleJson` (JSON, schema version 1) |
+| Usual meal times | `SharedPreferences` key `user_meal_profile_{userId}` |
+| Generated fire times | `reminder_events` (Phase 6; derived from rules + meal profile) |
+
+`reminderScheduleJson` encodes `MedicationReminderSchedule`: mode (`mealBased` | `intervalBased`), meal or interval payload, and `MedicationCourse` (`startDate`, `durationDays`). End date is **inclusive** and derived as `startDate + (durationDays - 1)` calendar days.
+
+Legacy rows with null `reminderScheduleJson` are not auto-mapped to meal/interval modes.
+
+---
+
 # Data model (schema v1)
 
 This document matches the Drift schema and `medication_schema_v1` JSON types implemented in the app.
 
 ## Tenancy
 
-- Single SQLite database (`AppDatabase`, `schemaVersion = 1`).
+- Single SQLite database (`AppDatabase`, `schemaVersion = 2`).
 - Every tenant table includes `userId` referencing `users.id`.
 - Foreign keys are enabled (`PRAGMA foreign_keys = ON`).
 
@@ -72,6 +91,7 @@ Confirmed medicine snapshots (one row per confirmed line item).
 | `confirmedByUser` | BOOL |
 | `scheduleRuleId` | TEXT nullable |
 | `frequencyConfidence` | TEXT |
+| `reminderScheduleJson` | TEXT nullable (v2) |
 
 ### `reminder_events` / `adherence_entries`
 
@@ -91,4 +111,5 @@ Placeholder v1 tables for Phase 6; FK cascade from `medicines` / `reminder_event
 ## Migrations
 
 - Version **1**: initial create via Drift `onCreate`.
+- Version **2**: add `medicines.reminderScheduleJson` (nullable).
 - `DatabaseMigrations.currentVersion` must stay in sync with `AppDatabase.schemaVersion`.

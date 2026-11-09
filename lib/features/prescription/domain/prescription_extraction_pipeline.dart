@@ -18,5 +18,6 @@ abstract class PrescriptionExtractionPipeline {
   Future<PrescriptionReviewBundle> extractUnified({
     required String imagePath,
     required OcrResult cachedOcr,
+    void Function(String stageLabel)? onProgress,
   });
 }

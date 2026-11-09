@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:medicine_remainder_app/app/di/user_providers.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:medicine_remainder_app/features/medicines/domain/medication_draft.dart';
 import 'package:medicine_remainder_app/features/prescription/domain/prescription_ehr_draft.dart';
 import 'package:medicine_remainder_app/features/prescription/domain/prescription_review_bundle.dart';
@@ -109,12 +112,21 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
 
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+
     await tester.pumpWidget(
-      MaterialApp(
-        home: PrescriptionReviewScreen(
-          imagePath: '/tmp/rx.jpg',
-          bundle: _sampleBundle(),
-          imagePreview: const SizedBox.shrink(),
+      ProviderScope(
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+        ],
+        child: MaterialApp(
+          home: PrescriptionReviewScreen(
+            imagePath: '/tmp/rx.jpg',
+            bundle: _sampleBundle(),
+            userId: 'user-test',
+            imagePreview: const SizedBox.shrink(),
+          ),
         ),
       ),
     );
@@ -125,6 +137,8 @@ void main() {
     expect(find.text('Dr. Smith'), findsOneWidget);
     expect(find.text('Medicine 1'), findsOneWidget);
     expect(find.text('Confirm row'), findsOneWidget);
+    expect(find.text('Meal-based'), findsOneWidget);
+    expect(find.text('Reminder schedule'), findsOneWidget);
     expect(find.text('hidden'), findsNothing);
     expect(find.text('On-device OCR + rules'), findsOneWidget);
   });

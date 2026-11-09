@@ -1,11 +1,12 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicine_remainder_app/app/di/providers.dart';
+import 'package:medicine_remainder_app/features/prescription/application/prescription_flow_state.dart';
+import 'package:medicine_remainder_app/features/users/application/active_user_controller.dart';
 import 'package:medicine_remainder_app/app/router.dart';
 import 'package:medicine_remainder_app/features/prescription/presentation/prescription_review_screen.dart';
+import 'package:medicine_remainder_app/features/prescription/presentation/prescription_stored_image.dart';
 import 'package:medicine_remainder_app/services/ocr/ocr_result.dart';
 import 'package:medicine_remainder_app/services/ocr/prescription_image_verifier.dart';
 import 'package:medicine_remainder_app/shared/models/prescription_likelihood.dart';
@@ -32,6 +33,7 @@ class _DocumentVerifyScreenState extends ConsumerState<DocumentVerifyScreen> {
   String? _error;
   bool _checking = true;
   bool _extracting = false;
+  String? _extractionStage;
 
   @override
   void initState() {
@@ -71,22 +73,42 @@ class _DocumentVerifyScreenState extends ConsumerState<DocumentVerifyScreen> {
     if (_ocr == null) {
       return;
     }
-    setState(() => _extracting = true);
+    setState(() {
+      _extracting = true;
+      _extractionStage = 'Starting extraction…';
+    });
     try {
       final bundle = await ref
           .read(prescriptionExtractionPipelineProvider)
           .extractUnified(
             imagePath: widget.imagePath,
             cachedOcr: _ocr!,
+            onProgress: (stage) {
+              if (!mounted) return;
+              setState(() => _extractionStage = stage);
+            },
           );
       if (!mounted) {
         return;
       }
+      final userId = ref.read(activeUserIdProvider);
+      if (userId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Select a profile before reviewing.')),
+        );
+        return;
+      }
+      ref.read(prescriptionFlowProvider.notifier).setReviewSession(
+            imagePath: widget.imagePath,
+            bundle: bundle,
+            userId: userId,
+          );
       await context.push(
         AppRoutes.prescriptionReview,
         extra: PrescriptionReviewRouteArgs(
           imagePath: widget.imagePath,
           bundle: bundle,
+          userId: userId,
         ),
       );
     } catch (error) {
@@ -98,7 +120,10 @@ class _DocumentVerifyScreenState extends ConsumerState<DocumentVerifyScreen> {
       );
     } finally {
       if (mounted) {
-        setState(() => _extracting = false);
+        setState(() {
+          _extracting = false;
+          _extractionStage = null;
+        });
       }
     }
   }
@@ -114,8 +139,8 @@ class _DocumentVerifyScreenState extends ConsumerState<DocumentVerifyScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           Text(
-            'Step 1 of 2 — We check whether this looks like a prescription '
-            'before extracting medicines. SmolVLM can assist here when installed.',
+            'Step 1 of 2 — We confirm that on-device Gemma 3n is available, '
+            'then analyze the image directly (no OCR).',
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 12),
@@ -124,8 +149,8 @@ class _DocumentVerifyScreenState extends ConsumerState<DocumentVerifyScreen> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: widget.imagePreview ??
-                  Image.file(
-                    File(widget.imagePath),
+                  PrescriptionStoredImage(
+                    path: widget.imagePath,
                     fit: BoxFit.contain,
                   ),
             ),
@@ -158,7 +183,11 @@ class _DocumentVerifyScreenState extends ConsumerState<DocumentVerifyScreen> {
                 icon: const Icon(Icons.photo_camera_outlined),
                 label: const Text('Choose another image'),
               )
-            else
+            else ...[
+              if (_extracting && _extractionStage != null) ...[
+                Text(_extractionStage!, style: theme.textTheme.bodySmall),
+                const SizedBox(height: 8),
+              ],
               FilledButton.icon(
                 onPressed: _extracting ? null : _continueToExtraction,
                 icon: _extracting
@@ -170,10 +199,11 @@ class _DocumentVerifyScreenState extends ConsumerState<DocumentVerifyScreen> {
                     : const Icon(Icons.arrow_forward),
                 label: Text(
                   _extracting
-                      ? 'Extracting prescription…'
+                      ? (_extractionStage ?? 'Extracting prescription…')
                       : 'Continue to review',
                 ),
               ),
+            ],
           ],
         ],
       ),
